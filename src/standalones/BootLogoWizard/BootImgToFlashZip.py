@@ -8,32 +8,31 @@ from sys import platform
 from subprocess import Popen
 from subprocess import PIPE
 from os import system
+import Image
 
 if platform[:3] == 'win':
    ret = system('cls')
 else: 
    ret = system('clear')
-print("\n\nBootLogo Auto Creator (Droid X and Droid2 Only) V 1.0...")
+print("\n\nBootLogo Auto Creator (Droid X and Droid2 Only) V 1.1...")
 print("Created by Connor Lange\n\n")
 print("Drag your boot logo .bmp file into this window to proceed.")
 response = raw_input("File: ")
 if response == '' or response[-4:] != '.bmp':
-   print("Invalid boot logo. The boot logo MUST be a .bmp image")
+   print("Invalid boot logo. The boot logo MUST be created from a 24-bit .bmp image")
    raw_input("Press ENTER to continue: ")
    exit()
-logoFile = open(response, 'rb').read() # read the entire image file
+Image.open(response).transpose(Image.FLIP_LEFT_RIGHT).save(response[:-4]+"flip.bmp")
+logoFile = open(response[:-4]+"flip.bmp", 'rb').read() # read the entire image file
 
 # More error checking
-if len(logoFile) == 262136: # File size of .bmp correctly created in Photoshop
-   print("Removing the first 54 bytes, and the last 2 bytes from your image...")
-   logoImg = logoFile[54:-2] # Since Photoshop adds two extra bytes, remove them (remove first 54 bytes and last 2 bytes)
-elif len(logoFile) == 262134: # File size of a .bmp correctly created elsewhere 
+if len(logoFile) == 262134: # File size of a .bmp correctly created and then flipped 
    print("Removing the first 54 bytes from your image...")
-   logoImg = logoFile[54:] # Other applications don't add two extra bytes (remove first 54 bytes)
+   logoImg = logoFile[54:] # Remove first 54 bytes
 else:
    print("The file you supplied is not of the correct size.")
-   print("Please supply a file of size 262136 bytes (Edited in Photoshop) ")
-   print("or 262134 bytes (Edited elsewhere) || Your file size was: "+str(len(logoFile))+" bytes")
+   print("After flipping the image, you file size should have been 262134 bytes.")
+   print("However, your file size was: "+str(len(logoFile))+" bytes")
    raw_input("Press ENTER to continue: ")
    exit()
 print("Reversing the bytes in your image...")   
