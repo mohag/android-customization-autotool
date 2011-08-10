@@ -1,5 +1,0 @@
-The purppose of this test is to:
-1) Check if an image flipped horizontally in Photoshop is the same as one flipped in PIL
-2) Check if once the byte removals are done on the flipped Photoshop and flipped PIL image they are the same
-3) Verify that the size checks are not needed (i.e that PIL prodoces 
-4) Verify that the result of doing the edits manually is the same as automatically doing them
