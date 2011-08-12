@@ -17,43 +17,11 @@ from os import path
 from os import devnull
  
 # Project modules 
-from bootlogocreator import bootLogoWizard
+from bootlogocreator import bootLogoWizard # Boot Logo operations: only one method, just import it
+import adbtools # ADB functionality
+import ostools # File management, environment variables, etc.
 
 # Function definitions
-def adbAvailable(config):
-   process = Popen([config['adbCmd'], 'version'], stdout=PIPE, stderr=PIPE) # Check for adb
-   if process.stderr.read() != '':
-      if config['adbCmd'] == 'adb':
-         print("ERROR: adb is not listed in your PATH enviroment variable. As a result, operations that access your phone will not work!")
-         response = raw_input("If you know where the adb executable is located, drag it into this window. Otherwise press enter: ")
-         if response == '':
-            response = raw_input("adb couln't be located. Would you like to proceed anyway? (y/n) ")
-            if response != 'y':
-               print("You have chosen not to proceed since adb cannot be used...\nGoodbye!")
-               exit()
-            response = raw_input("Would you like to commit the decision to skip start-up adb checks to this program's configuration? (y/n) ")
-            if response == 'y':
-               config['adbEnabled'] = False
-         else:
-            config['adbCmd'] = response
-            # Check again with updated config TODO possibly fix since stack overflow can happen (given enough tries)
-            adbAvailable(config)
-            
-      return False   
-   else:
-      if config['adbCmd'] != 'adb' and config['checkAdbPath']:
-         print("Lack of PATH configuration detected...")
-         print("Although adb commands will work within this program, you won't be able to")
-         print("simply type 'adb' on the command line. This can be resolved, by setting")
-         print("your PATH system environment variable.")
-         response = raw_input("Would you like to configure PATH to include adb? (y/n) ")
-         if response == 'y':
-            setSysEnv(config, prompt=False, adb=True, java=False)
-         else:
-            reponse = raw_input("Would you like to commit the decision to skip environment variable checks to this program's configuration? (y/n) ")
-            config['checkAdbPath'] = False
-      return True
-
 def javaAvailable(config):
    pass
       
@@ -62,7 +30,7 @@ def checkDirTree():
          
 def checkConfig(config):
    if config['adbEnabled']: 
-      adbAvailable(config)
+      adbtools.adbAvailable(config)
    if config['javaEnabled']:
       javaAvailable(config)   
    config['userOS'] = platform[:3] # 'win' if Windows, first 3 chars of other OS (garbage) otherwise
@@ -106,74 +74,6 @@ def printMenu():
       print(" "+str(i)+": "+menuOptions[i-1])
    menuHeader('Boot Animation Operations:')
    print("\n" + ("#" * 64))
-
-def adbPull(config):
-   if config['adbEnabled']:
-      print("What file(s) would you like to grab?\n[Ex: /system/app/Dialer.apk gets the Dialer app, whereas /system/app/ gets all system apps!]")
-      source = raw_input("Source: ")
-      print("Where would you like to put the files retrieved from your phone? \n[Ex: C:\Users\user\Desktop] Press ENTER to place the files in the same folder as this script!")
-      destination = raw_input("Destination: ")
-      print("\nExecuting adb pull operation...\n")
-      if destination == '':
-         system('adb pull '+source)
-      else:         
-         system('adb pull '+source+' '+destination)
-   else: 
-      print('You opted out of adb operations. Action cannot proceed!')
-      response = raw_input("Would you like to re-enable adb operations in this program? (y/n) ")
-      if response == 'y':
-         adbAvailable(config)
-   raw_input("\nDone! Press ENTER to continue...")
-   
-def adbPush(config):
-   if config['adbEnabled']:
-      print("What file/directory would you like to send?\nType it in, or drag it to this window")
-      source = raw_input("Source: ")
-      print("Where would you like to send the file(s)?\n [Ex: /system/app/ will send the file(s) to where system APKs are stored]")
-      destination = raw_input("Destination: ")
-      print("\nExecuting adb push operation...\n")
-      system('adb push '+source+' '+destination)
-   else: 
-      print('You opted out of adb operations. Action cannot proceed!')
-      response = raw_input("Would you like to re-enable adb operations in this program? (y/n) ")
-      if response == 'y':
-         adbAvailable(config)
-   raw_input("\nDone! Press ENTER to continue...")
-
-def adbShell(config):
-   if config['adbEnabled']:
-      response = raw_input("Do you want to run more than one shell command? (y/n) ")
-      if response == 'y':
-         print("Remember 'exit' quits the shell")
-         print("Starting shell...\n")
-         supress = call('adb shell')             
-      else: 
-         response = raw_input("adb shell ")
-         system('adb shell '+response)
-   else: 
-      print('You opted out of adb operations. Action cannot proceed!')
-      response = raw_input("Would you like to re-enable adb operations in this program? (y/n) ")
-      if response == 'y':
-         adbAvailable(config)
-   raw_input("\nDone! Press ENTER to continue...")
-   
-def adbReboot(config):
-   if config['adbEnabled']:
-      print("Rebooting your phone...")
-      system('adb reboot')
-   else: 
-      print('You opted out of adb operations. Action cannot proceed!')
-      response = raw_input("Would you like to re-enable adb operations in this program? (y/n) ")
-      if response == 'y':
-         adbAvailable(config)
-   raw_input("\nDone! Press ENTER to continue...")
-
-def testBootAnim(config):
-   print("Beginning test of bootanimation, press CTRL+C to exit...")
-   try: 
-      supressRes = call('adb shell bootanimation')
-   except KeyboardInterrupt:
-      raw_input("Test complete, press ENTER to continue: ")
       
 def decompile():
    print("Beginning the decompilation process...")
@@ -258,26 +158,6 @@ def sign():
    
 def clr():
    system(['cls', 'clear'][platform[0:3] != 'win'])
-   
-def getNinePatchImgs(path=""):
-   process = Popen(['dir',path], stdout=PIPE)
-   out = [x.split()[-1] for x in process.stdout.readlines() if len(x) >= 8 and x[-7:-1] == '.9.png']
-   return out
-
-def grabNinePatchImgs(prompt=True, path=''):
-   ninePatchImgs = getNinePatchImgs(path)
-   if prompt:
-      location = raw_input('Enter the path to the directory to copy the nine-patch images to: ')
-   else:
-      location = ninePatch
-      Popen(['del', '9patch'])
-      Popen(['mkdir', '9patch2'])
-     
-   for image in ninePatchImgs(path):
-      print('Copying '+image+' to '+location)
-      call(['copy', image, location])
-
-   print 'Done'
 
 def setCurrentProject(config):
    i = 1
@@ -298,47 +178,6 @@ def setCurrentProject(config):
    print(response)
    config['currentProject'] = apkList[response-1]
    return None
-
-def listApks():   
-   process = Popen(['dir', wk+'*.apk'], stdout=PIPE)
-   apks = [x.split()[-1] for x in process.stdout.readlines() if len(x) >= 5 and x[-5:-1] == '.apk']
-   return apks
-      
-def setSysEnv(config, prompt=True, adb=True, java=True):
-   if platform[:3] == 'win':
-      if prompt:
-         response = raw_input("Would you like to add adb to your path? (y/n): ")
-         if response == 'y':
-            print("Drag the FOLDER containing adb.exe to this window: ")
-            response = raw_input('Folder: ')
-            currentPath = check_output(['echo', '%PATH%'], shell=True).rstrip()
-            if currentPath[-1:] == ';':
-               currentPath = currentPath[:-1]
-            print("Setting variable globally...")
-            system('setx PATH "'+currentPath+';'+response+'" /M')
-            print("\nSetting variable locally...")
-            system('setx PATH "'+currentPath+';'+response+'"')
-            print("\nAdded "+response+" to the PATH environment variable")
-         response = raw_input("Would you like to add java to your path? (y/n): ")
-         if response == 'y':
-            print("Drag the FOLDER containing java.exe to this window: ")
-            response = raw_input('Folder: ')
-            currentPath = check_output(['echo', '%PATH%'], shell=True).rstrip()
-            if currentPath[-1:] == ';':
-               currentPath = currentPath[:-1]
-            print("Setting variable globally...")
-            system('setx PATH "'+currentPath+';'+response+'" /M')
-            print("\nSetting variable locally...")
-            system('setx PATH "'+currentPath+';'+response+'"')
-            print("\nAdded "+response+" to the PATH environment variable")
-         raw_input("Done! Press ENTER to continue: ")
-      else:
-         if adb:
-            system('setx PATH %PATH%;'+config['adbCmd'][:-7])
-         if java: 
-            system('setx PATH %PATH%;'+config['javaCmd'][:-8])
-   else:
-      print("Setting Linux environment variables currently isn't supported")
       
 ### MAIN ###
 try:
@@ -374,7 +213,7 @@ else:
 menuOptions = ["Set current project", 
                'Configure system environment variables for adb and Java (Windows only)',
                'Grab all 9patch images from a folder',
-               'Grab files and APKs from yourq phone (adb pull)',
+               'Grab files and APKs from your phone (adb pull)',
                "Put files and APKs onto your phone (adb push)",
                "Execute shell commands (adb shell)",
                "Reboot phone (adb reboot)",
@@ -385,8 +224,9 @@ menuOptions = ["Set current project",
                "Compile all 9-patch images in current project",
                "Create a flashable boot logo zip from a 24-bit BMP image (Droid2 and Droid X only)"]
 #Set menu functions here to make life easier --> zip ftw
-menuFunctions = [setCurrentProject, setSysEnv, grabNinePatchImgs,
-                 adbPull, adbPush, adbShell, adbReboot, testBootAnim, 
+menuFunctions = [setCurrentProject, ostools.setSysEnv, ostools.grabNinePatchImgs,
+                 adbtools.adbPull, adbtools.adbPush, adbtools.adbShell, 
+                 adbtools.adbReboot, adbtools.testBootAnim, 
                  decompile, compile, sign, compile9Patch, bootLogoWizard]
 
 while True:
@@ -397,15 +237,13 @@ while True:
       config['currentProject'] = None
    clr()
    printMenu()
-   response = raw_input('Please make a decision: ')
+   response = raw_input('Please make a decision or type q to quit: ')
    if response == 'q':
       cPickle.dump(config, open('config.pkl', 'wb'))
       exit()
    try:    
       operation = dict(zip(range(1,len(menuFunctions)+1),menuFunctions)).get(int(response), None)
    except ValueError:
-      operation = None
-   if operation is None:
       print("\n\nERROR: '" + response + "' is not a valid option, please check the menu again")
       raw_input("Press ENTER to continue...")
       clr()

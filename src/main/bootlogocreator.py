@@ -5,6 +5,10 @@
 # into a flashable .zip for them 
 #
 # This module handles all boot logo related tasks
+# 
+# Module Prerequisites:
+# 1) ADB install and in PATH (adb push functionality only)
+# 2) PIL Image library (included in Py2Exe dist only)
  
 from subprocess import call
 from subprocess import Popen
