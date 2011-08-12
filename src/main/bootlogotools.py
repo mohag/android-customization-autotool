@@ -14,7 +14,7 @@ from subprocess import call
 from subprocess import Popen
 from subprocess import PIPE
 from os import system 
-import Image
+import Image # IMPORTANT: Requires Python Image Library (PIL)
 
 def bootLogoWizard(config):
    if config['userOS'] == 'win': # Get us a nice clean screen to work with...
