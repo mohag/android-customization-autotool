@@ -163,7 +163,7 @@ def setCurrentProject(config):
    i = 1
    response = 50000
    print("Which number apk in the list below do you want to start working on?")
-   apkList = ostools.listApks()
+   apkList = ostools.listApks(config)
    print('\n'+('#' * 10)+" APK LIST "+('#' * 10))
    for apk in apkList:
       print(str(i) + ": " + apk)
@@ -194,7 +194,7 @@ except (EOFError, IOError):
 checkConfig(config)
 ## Relative paths...
 if config['userOS'] == 'win':
-   wk = 'workspace\\'
+   config['wk'] = 'workspace\\'
    wksign = 'workspace\\signed\\'       
    tools = 'tools\\'
    wkdec = 'workspace\\decompiled\\'
@@ -202,7 +202,7 @@ if config['userOS'] == 'win':
    ninePatch = 'tools\\9patch\\res\\'
    ninePatchDone = 'tools\\done\\res\\'
 else: 
-   wk = r'./workspace/'
+   config['wk'] = r'./workspace/'
    wksign = r'./workspace/signed/'
    tools = r'./tools/'
    wkdec = r'./workspace/decompiled/'
@@ -231,7 +231,7 @@ menuFunctions = [setCurrentProject, ostools.setSysEnv, ostools.grabNinePatchImgs
 
 while True:
    try: 
-      stat(wk+str(config['currentProject'])) # Make sure the project still exists
+      stat(config['wk']+str(config['currentProject'])) # Make sure the project still exists
    except WindowsError:
       print("You seem to have moved your current project. Setting the current project to nothing")
       config['currentProject'] = None

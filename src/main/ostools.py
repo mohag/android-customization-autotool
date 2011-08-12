@@ -17,22 +17,15 @@ from subprocess import call
 from subprocess import check_output
 from subprocess import PIPE
 
-import autotool # Access to global settings
-
 def getNinePatchImgs(path=""):
    process = Popen(['dir',path], stdout=PIPE, shell=True)
    out = [x.split()[-1] for x in process.stdout.readlines() if len(x) >= 8 and x[-7:-1] == '.9.png']
    return out
 
-def grabNinePatchImgs(prompt=True, path=''):
-   if prompt:
-      path = raw_input('Enter the path to the directory to copy the nine-patch images from: ')
-      location = raw_input('Enter the path to the directory to copy the nine-patch images to: ')
-   else:
-      location = ninePatch
-      Popen(['del', '9patch'], shell=True)
-      Popen(['mkdir', '9patch'], shell=True)
-   
+def grabNinePatchImgs(config):
+   path = raw_input('Enter the path to the directory to copy the nine-patch images from: ')
+   location = raw_input('Enter the path to the directory to copy the nine-patch images to: ')
+
    ninePatchImgs = getNinePatchImgs(path)  
    
    for image in ninePatchImgs:
@@ -42,8 +35,8 @@ def grabNinePatchImgs(prompt=True, path=''):
 
    raw_input("Done! Press ENTER to continue")
    
-def listApks():   
-   process = Popen(['dir', autotool.wk+'*.apk'], stdout=PIPE, shell=True)
+def listApks(config):   
+   process = Popen(['dir', config['wk']+'*.apk'], stdout=PIPE, shell=True)
    apks = [x.split()[-1] for x in process.stdout.readlines() if len(x) >= 5 and x[-5:-1] == '.apk']
    return apks
       

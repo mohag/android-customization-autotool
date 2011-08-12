@@ -109,8 +109,20 @@ def adbShell(config):
    
 def adbReboot(config):
    if config['adbEnabled']:
-      print("Rebooting your phone...")
-      system('adb reboot')
+      response = raw_input("Do you want to reboot normally or reboot into recovery (not Clockwork)? (n/r): ")
+      mode = '' # stays empty for normal reboot, but changes for recovery
+      if response != 'r':      
+         print("Rebooting your phone...\n")
+      else: 
+         print("Rebooting your phone into stock recovery...\n")
+         mode = 'recovery'
+      while call(['adb', 'reboot', mode]):
+         print("\nAn error occurred. Please ensure you have USB debugging")
+         print("enabled and your phone is connected to your computer")
+         if raw_input("Would you like to try again? (y/n): ") != 'y':
+            break 
+         print("\n") # pad between response and adb output
+      print("Success! Phone is going down for reboot now!")
    else: 
       print('You opted out of adb operations. Action cannot proceed!')
       response = raw_input("Would you like to re-enable adb operations in this program? (y/n) ")
