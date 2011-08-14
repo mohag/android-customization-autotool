@@ -25,10 +25,11 @@ def progress(func, msg):
 # Copy utility
 def copy(src, dest, dir=False):
    if platform[:3] == 'win':
-      process = Popen(['xcopy','/Q','/E','/Y', src, dest], stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
       if dir: 
+         process = Popen(['xcopy','/Q','/E','/Y', src, dest], stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
          output = process.communicate("D") # Tell xcopy its a directory if it asks
       else: 
+         process = Popen(['xcopy','/Q','/Y', src, dest], stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
          output = process.communicate("F") # Tell xcopy its a file if it asks
       return process.returncode
    else: # Linux
