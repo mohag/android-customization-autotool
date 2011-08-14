@@ -25,13 +25,15 @@ if response == '' or response[-4:] != '.bmp':
 Image.open(response).transpose(Image.FLIP_LEFT_RIGHT).save(response[:-4]+"flip.bmp")
 logoFile = open(response[:-4]+"flip.bmp", 'rb').read() # read the entire image file
 
-# More error checking
-if len(logoFile) == 262134: # File size of a .bmp correctly created and then flipped 
+# More error checking 
+# ALWAYS 262134 since the image library used above outputs this size after flipping the 
+# image regardless of the program that was used to create the image (even Photoshop)
+if len(logoFile) == 262134:  
    print("Removing the first 54 bytes from your image...")
    logoImg = logoFile[54:] # Remove first 54 bytes
 else:
    print("The file you supplied is not of the correct size.")
-   print("After flipping the image, you file size should have been 262134 bytes.")
+   print("After flipping the image, your file size should have been 262134 bytes.")
    print("However, your file size was: "+str(len(logoFile))+" bytes")
    raw_input("Press ENTER to continue: ")
    exit()
