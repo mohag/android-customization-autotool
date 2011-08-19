@@ -127,5 +127,3 @@ def createUpdateZip(config=None):
    print "Signing "+outName+"..."
    os.system('java -Xmx128m -jar signapk.jar -w testkey.x509.pem testkey.pk8 '+outPath+' '+outPath)
    print "Zip successfully signed!"
-   
-createUpdateZip()
