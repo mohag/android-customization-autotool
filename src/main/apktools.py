@@ -91,4 +91,10 @@ def sign(config, quiet=False, file=None):
    else: 
       system('java -Xmx128m -jar '+config['tools']+'signapk.jar -w '+config['tools']+'testkey.x509.pem '+config['tools']+'testkey.pk8 '+response+' '+response[:-4]+'-signed'+response[-4:])
       raw_input("Done! Your signed file is "+response[:-4]+'-signed'+response[-4:]+"  \nPress ENTER to continue")      
+
+def startMenuLoop():
+   pass
+      
+if __name__ == '__main__':
+   startMenuLoop()
    

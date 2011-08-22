@@ -13,39 +13,6 @@ from subprocess import PIPE
 
 from os import system
 
-def adbAvailable(config):
-   process = Popen([config['adbCmd'], 'version'], stdout=PIPE, stderr=PIPE) # Check for adb
-   if process.stderr.read() != '':
-      if config['adbCmd'] == 'adb':
-         print("ERROR: adb is not listed in your PATH enviroment variable. As a result, operations that access your phone will not work!")
-         response = raw_input("If you know where the adb executable is located, drag it into this window. Otherwise press enter: ")
-         if response == '':
-            response = raw_input("adb couln't be located. Would you like to proceed anyway? (y/n) ")
-            if response != 'y':
-               print("You have chosen not to proceed since adb cannot be used...\nGoodbye!")
-               exit()
-            response = raw_input("Would you like to commit the decision to skip start-up adb checks to this program's configuration? (y/n) ")
-            if response == 'y':
-               config['adbEnabled'] = False
-         else:
-            config['adbCmd'] = response
-            # Check again with updated config TODO possibly fix since stack overflow can happen (given enough tries)
-            adbAvailable(config)       
-      return False   
-   else:
-      if config['adbCmd'] != 'adb' and config['checkAdbPath']:
-         print("Lack of PATH configuration detected...")
-         print("Although adb commands will work within this program, you won't be able to")
-         print("simply type 'adb' on the command line. This can be resolved, by setting")
-         print("your PATH system environment variable.")
-         response = raw_input("Would you like to configure PATH to include adb? (y/n) ")
-         if response == 'y':
-            setSysEnv(config, prompt=False, adb=True, java=False)
-         else:
-            reponse = raw_input("Would you like to commit the decision to skip environment variable checks to this program's configuration? (y/n) ")
-            config['checkAdbPath'] = False
-      return True
-
 # An adb pull wrapper
 # @param config the current configuration of the AutoTool
 def adbPull(config):

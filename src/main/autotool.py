@@ -3,7 +3,6 @@
 # The main AutoTool script that dispatches tasks to other modules
 
 # Standard Library
-import cPickle
 from os import system
 from sys import argv
 from sys import platform
@@ -16,26 +15,13 @@ from os import walk
 from os import path
  
 # Project modules 
-from bootlogotools import bootLogoWizard # Boot Logo operations: only one method, just import it
+from boottools import bootLogoWizard # Boot Logo operations: only one method, just import it
 import adbtools # ADB functionality
 import ostools # File management, environment variables, etc.
 import apktools # APK functionality 
+import prefs # User Preferences
 
-# Function definitions
-def javaAvailable(config):
-   pass
-      
-def checkDirTree():
-   pass
-         
-def checkConfig(config):
-   if config['adbEnabled']: 
-      adbtools.adbAvailable(config)
-   if config['javaEnabled']:
-      javaAvailable(config)   
-   config['userOS'] = platform[:3] # 'win' if Windows, first 3 chars of other OS (garbage) otherwise
-   checkDirTree()
-   
+# Function definitions         
 def printHeader():
    print("\n\nAndroid Autotool V 1.0")
    print("Author: Connor Lange")
@@ -99,35 +85,7 @@ def setCurrentProject(config):
    return None
       
 ### MAIN ###
-try:
-   config = cPickle.load(open('config.pkl', 'rb'))
-except (EOFError, IOError):
-   config = {'adbEnabled': True, 
-             'javaEnabled': True,
-             'currentProject': None, 
-             'adbCmd': 'adb',
-             'javaCmd': 'java',
-             'checkAdbPath': True,
-             'userOS': None
-             }
-checkConfig(config)
-## Relative paths...
-if config['userOS'] == 'win':
-   config['wk'] = 'workspace\\'
-   wksign = 'workspace\\signed\\'       
-   config['tools'] = 'tools\\'
-   wkdec = 'workspace\\decompiled\\'
-   wkcom = 'workspace\\compiled\\'
-   ninePatch = config['tools']+'\\9patch\\res\\'
-   ninePatchDone = config['tools']+'\\done\\res\\'
-else: 
-   config['wk'] = r'workspace/'
-   wksign = r'workspace/signed/'
-   config['tools'] = r'tools/'
-   wkdec = r'workspace/decompiled/'
-   wkcom = r'workspace/compiled/'
-   ninePatch = config['tools']+r'/9patch/res/'
-   ninePatchDone = config['tools']+r'/done/res/'
+config = prefs.getUserPreferences()
 #Set menu options here to make life easier --> auto numbering!
 menuOptions = ["Set current project", 
                'Configure system environment variables for adb and Java (Windows only)',
@@ -146,7 +104,8 @@ menuOptions = ["Set current project",
 menuFunctions = [setCurrentProject, ostools.setSysEnv, ostools.grabNinePatchImgs,
                  adbtools.adbPull, adbtools.adbPush, adbtools.adbShell, 
                  adbtools.adbReboot, adbtools.testBootAnim, 
-                 decompile, compile, sign, compile9Patch, bootLogoWizard]
+                 apktools.decompile, apktools.compile, apktools.sign, apktools.compile9Patch, 
+                 bootLogoWizard]
 
 while True:
    try: 
@@ -158,7 +117,7 @@ while True:
    printMenu()
    response = raw_input('Please make a decision or type q to quit: ')
    if response == 'q':
-      cPickle.dump(config, open('config.pkl', 'wb'))
+      prefs.saveUserPreferences()
       exit()
    try:    
       operation = dict(zip(range(1,len(menuFunctions)+1),menuFunctions)).get(int(response), None)
