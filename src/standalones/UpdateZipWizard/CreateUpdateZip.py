@@ -116,9 +116,9 @@ def createUpdateZip(config=None):
    outPath = os.path.normpath(os.getcwd()+"/generatedZips/"+outName)
    print "\nCreating "+outName+" in "+os.path.dirname(outPath)+"..."
    if config is None:
-      zipProcess = Popen(["7za", "a", "-tzip", "-mx0", outPath, inFolder+de()+"*"], stdout=PIPE, stderr=PIPE)   
+      zipProcess = Popen(["7za", "a", "-tzip", "-mx0", outPath, inFolder+de()+"*"], stderr=PIPE)   
    else: 
-      zipProcess = Popen(["7za", "a", "-tzip", "-mx0", outPath, inFolder+de()+"*"], stdout=PIPE, stderr=PIPE, cwd=config['tools'])
+      zipProcess = Popen(["7za", "a", "-tzip", "-mx0", outPath, inFolder+de()+"*"], stderr=PIPE, cwd=config['tools'])
    zipProcess.wait()
    if zipProcess.returncode:
       print("An error occurred when creating the zip. See the errors below for details:\n")
@@ -127,7 +127,7 @@ def createUpdateZip(config=None):
       exit()
    print "Zip successfully created!" 
    print "Signing "+outName+"..."
-   os.system('java -Xmx128m -jar signapk.jar -w testkey.x509.pem testkey.pk8 '+outPath+' '+outPath)
+   os.system('java -jar signapk.jar -w testkey.x509.pem testkey.pk8 '+outPath+' '+outPath)
    print "Zip successfully signed!"
    raw_input("Press ENTER to continue... ")
 
