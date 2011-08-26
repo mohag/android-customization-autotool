@@ -109,6 +109,7 @@ def createUpdateZip(config=None):
       print(r"Neither the /system or /data folders were found in the folder you specified.")
       print("When you create an update.zip, you'll need to replicate the Android directory strucure.")
       print("Ex: You should have a 'system' and/or 'data' folder in the root of your input folder.")
+      raw_input("Press ENTER to continue...")
       exit()
    if not(metaPresent):
       generateMeta(inFolder, dataPresent, systemPresent)
@@ -122,10 +123,12 @@ def createUpdateZip(config=None):
    if zipProcess.returncode:
       print("An error occurred when creating the zip. See the errors below for details:\n")
       print(zipProcess.stderr.read())
+      print("Press ENTER to continue...")
       exit()
    print "Zip successfully created!" 
    print "Signing "+outName+"..."
    os.system('java -Xmx128m -jar signapk.jar -w testkey.x509.pem testkey.pk8 '+outPath+' '+outPath)
    print "Zip successfully signed!"
-   
+   raw_input("Press ENTER to continue... ")
+
 createUpdateZip()
