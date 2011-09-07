@@ -14,6 +14,7 @@ from utils import de # directory ending
 from utils import progress # monitor operations
 from utils import copy
 from subprocess import Popen, PIPE
+from sys import platform
 
 def addScript(phoneDir, updateRoot, script):
    print("If you want to run a script before recursively copying the /"+phoneDir)
@@ -115,15 +116,20 @@ def createUpdateZip(config=None):
       generateMeta(inFolder, dataPresent, systemPresent)
    outPath = os.path.normpath(os.getcwd()+"/generatedZips/"+outName)
    print "\nCreating "+outName+" in "+os.path.dirname(outPath)+"..."
-   if config is None:
-      zipProcess = Popen(["7za", "a", "-tzip", "-mx0", outPath, inFolder+de()+"*"], stderr=PIPE)   
-   else: 
-      zipProcess = Popen(["7za", "a", "-tzip", "-mx0", outPath, inFolder+de()+"*"], stderr=PIPE, cwd=config['tools'])
-   zipProcess.wait()
-   if zipProcess.returncode:
-      print("An error occurred when creating the zip. See the errors below for details:\n")
-      print(zipProcess.stderr.read())
-      print("Press ENTER to continue...")
+   try: 
+      if config is None:
+         zipProcess = Popen(["7za", "a", "-tzip", "-mx0", outPath, inFolder+de()+"*"], stderr=PIPE)   
+      else: 
+         zipProcess = Popen(["7za", "a", "-tzip", "-mx0", outPath, inFolder+de()+"*"], stderr=PIPE, cwd=config['tools'])
+      zipProcess.wait()
+      if zipProcess.returncode:
+         print("An error occurred when creating the zip. See the errors below for details:\n")
+         print(zipProcess.stderr.read())
+         raw_input("Press ENTER to continue...")
+         exit()
+   except: 
+      print("ERROR: 7za.exe not found in "+os.getcwd())
+      raw_input("Press ENTER to continue...")
       exit()
    print "Zip successfully created!" 
    print "Signing "+outName+"..."
@@ -131,4 +137,7 @@ def createUpdateZip(config=None):
    print "Zip successfully signed!"
    raw_input("Press ENTER to continue... ")
 
-createUpdateZip()
+if __name__ == '__main__':
+   if platform[:3] == 'win':
+      os.system("mode con:cols=100 lines=45")
+   createUpdateZip()
