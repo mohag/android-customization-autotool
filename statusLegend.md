@@ -1,0 +1,5 @@
+## Statuses: ##
+  1. **Stubbed:** The functionality has been decided and the project has been designated as something that will be completed. The stubbed file will give you an idea of what is to come, but development hasn't yet started.
+  1. **In Progress:** Development has started, but the project is not yet ready for use. There are probably multiple bugs in the code and the project may not be fully functional (or functional at all)
+  1. **Beta:** Development is mostly complete. Most of the functionality of the project is present and overall, the project is usable. There may be a few bugs or features missing.
+  1. **Complete:** The project has all of the intended functionality and has minimal or no bugs (if there are bugs they will be fixed). Development on the project has stopped with the exception of minor upgrades and bug fixes.
